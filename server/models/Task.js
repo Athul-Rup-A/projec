@@ -15,7 +15,13 @@ const taskSchema = new mongoose.Schema({
     completed: {
         type: Boolean,
         default: false,
+    },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'taskSign',
+        required: true
     }
+
 });
 
 module.exports = mongoose.model('Task', taskSchema);

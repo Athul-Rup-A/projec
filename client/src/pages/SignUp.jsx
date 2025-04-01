@@ -10,8 +10,6 @@ const Signup = () => {
         password: "",
     })
 
-    // const [msg, setMsg] = useState("")
-
     const navigate = useNavigate()
 
     let API = 'http://localhost:3700/api/'
@@ -27,7 +25,6 @@ const Signup = () => {
     }
 
     // console.log(data);
-
 
     const handleSignUp = async () => {
         // console.log("**********");
@@ -45,8 +42,6 @@ const Signup = () => {
 
             alert(response.data.message)
             // console.log(response, "handleSignUp SUCCESS");
-
-            // localStorage.setItem("token", )
 
             setData({
                 email: "",
@@ -67,7 +62,6 @@ const Signup = () => {
     }
 
     const signnUpToLogin = async () => {
-        // localStorage.removeItem("token")
         navigate('/login')
         alert("Redirecting to LOGIN!")
         return
@@ -90,9 +84,8 @@ const Signup = () => {
 
             <Container className="mt-5">
                 <Row className='d-flex flex-column justify-content-center align-items-center'>
-                    {/* <Col md={6} className="p-4 border border-dark"> */}
                     <Col md={5} className="p-4 border border-dark bg-white bg-opacity-75 rounded">
-                        <h3 className="mb-4">Sign-Up</h3>
+                        <h3 className="mb-4">Create an Account</h3>
                         <Form>
                             <Form.Group className="mb-3">
                                 <Form.Label>E-mail</Form.Label>
@@ -102,7 +95,6 @@ const Signup = () => {
                                     placeholder="Enter your E-mail"
                                     value={data.email}
                                     onChange={handleChange}
-                                    // pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                                     pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
                                     className='w-75'
                                     autoFocus
@@ -119,8 +111,8 @@ const Signup = () => {
                                     className='w-75'
                                 />
                             </Form.Group>
-                            <Button onClick={handleSignUp} variant='dark'>Create User</Button>
-                            <h6 className='mt-2'>Already have an account :<Button onClick={signnUpToLogin} variant='transparent' className='mb-1'>Login</Button></h6>
+                            <Button onClick={handleSignUp} variant='dark'>Sign-Up</Button>
+                            <h6 className='mt-2 mb-0'>Already have an account ?<Button onClick={signnUpToLogin} variant='transparent' className='mb-1'>Login</Button></h6>
                         </Form>
                     </Col>
                 </Row>

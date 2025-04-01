@@ -5,6 +5,9 @@ import axios from 'axios';
 import { MdDelete, MdIncompleteCircle } from "react-icons/md";
 import { BiSolidEditAlt } from "react-icons/bi";
 import { useNavigate } from 'react-router-dom';
+import { ButtonGroup } from 'react-bootstrap';
+import { Dropdown } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 const Client = () => {
 
@@ -23,7 +26,6 @@ const Client = () => {
 
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
-    // const handleShow = () => setShow(true);
     const [newStatus, setNewStatus] = useState("");
     const [selectedTaskId, setSelectedTaskId] = useState(null);
 
@@ -44,7 +46,6 @@ const Client = () => {
     };
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    // const [taskToDelete, setTaskToDelete] = useState(null);
 
     const [filterPriority, setFilterPriority] = useState("");
     const [filterStatus, setFilterStatus] = useState("");
@@ -53,6 +54,8 @@ const Client = () => {
     const [sortOrder, setSortOrder] = useState("asc");
 
     const [selectedTasks, setSelectedTasks] = useState([]);
+
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
     const taskChange = (e) => {
         const { name, value } = e.target;
@@ -71,6 +74,7 @@ const Client = () => {
     };
 
     const taskAdd = async () => {
+        let token = localStorage.getItem('token');
 
         if (task.title.trim() === "" || task.description.trim() === "" ||
             task.priorityLevel.trim() === "" || task.dueDate.trim() === "") {
@@ -92,34 +96,45 @@ const Client = () => {
             };
 
             let response = await axios.post(`${API}postTask`, payload, {
-                headers: { "Content-Type": "application/json" }
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
             });
             alert(response.data.message);
             // console.log(response, "taskAdd RESPONSE");
 
             getTasks();
+
+            setTask({
+                title: "",
+                description: "",
+                dueDate: new Date().toISOString().split("T")[0], // Default to today's date
+                priorityLevel: "low",
+                completed: ""
+            });
         } catch (error) {
-            // alert(response.data.message)
-            // if (error.response) {
-            //     alert(error.response.data.message)
-            // } else {
-            //     alert("i don't know")
-            // }
             alert(error.response?.data?.message || "Unknown error");
-            // console.log(error, "ERROR in AddTASK");
         }
     };
 
     const getTasks = async () => {
         try {
-            let response = await axios.get(`${API}getTasks`);
+            const token = localStorage.getItem('token');
+            let response = await axios.get(`${API}getTasks`
+                , {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
             setViewTasks(response.data)
         } catch (error) {
             console.log(error);
         }
     };
 
-    const taskDelete = async (UID) => { 
+    const taskDelete = async (UID) => {
         try {
             let response = await axios.delete(`${API}deleteTask/?id=${UID}`);
             // console.log(response, "taskDelete RESPONSE");
@@ -131,16 +146,22 @@ const Client = () => {
     };
 
     const taskLogout = async () => {
+        console.log("Logging out...");
         localStorage.removeItem('token');
         navigate('/login');
-        alert('LOGGED OUT!');
+        // alert('LOGGED OUT!');
+        // Prevent back button navigation
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function () {
+            window.history.pushState(null, "", window.location.href);
+        };
         return;
     };
 
     const taskStatus = async () => {
         try {
             let response = await axios.put(`${API}statusUpdation/?id=${selectedTaskId}`, { newStatus });
-            console.log(response, "taskStatus RESPONSE");
+            // console.log(response, "taskStatus RESPONSE");
             setShow(false);
             getTasks();
         } catch (error) {
@@ -154,7 +175,7 @@ const Client = () => {
             setEditDescription(null)
             let response = await axios.put(`${API}editTaskDes`, { id: id, newText: newText })
             getTasks()
-            console.log(response, "responseeeeeeeeee");
+            // console.log(response, "responseeeeeeeeee");
         } catch (error) {
             console.log(error);
         }
@@ -216,7 +237,11 @@ const Client = () => {
                     <Row>
 
                         <Col md={6} className='p-4 border border-dark text-light'>
-                            <h3 className='mb-4'>Task Management</h3>
+                            <h3 className='mb-4 d-flex justify-content-between'>Task Management
+                                <Link to="/profile">
+                                    <Button variant="outline-light">Profile</Button>
+                                </Link>
+                            </h3>
                             <Form>
                                 <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
                                     <Form.Label>Title</Form.Label>
@@ -263,7 +288,6 @@ const Client = () => {
                                         name='dueDate'
                                         min={new Date().toISOString().split("T")[0]} // Restrict past dates
                                         value={task.dueDate}
-                                        // value={task.dueDate ? task.dueDate.split("T")[0] : ""}
                                         onChange={taskChange}
                                     />
                                 </Form.Group>
@@ -273,7 +297,6 @@ const Client = () => {
                                     <Form.Select
                                         name='completed'
                                         value={task.completed ? "true" : "false"}
-                                        // value={task.completed.toString()}
                                         onChange={taskChangeComp}
                                     >
                                         <option value="true">Completed</option>
@@ -282,17 +305,12 @@ const Client = () => {
                                 </Form.Group>
 
                                 <Button onClick={taskAdd} variant='outline-light' className='m-1'>Add TASK</Button>
-                                <Button onClick={taskLogout} variant='outline-light' className='m-1'>Logout</Button>
+                                <Button onClick={() => setShowLogoutConfirm(true)} variant='outline-light' className='m-1'>Logout</Button>
 
                             </Form>
                         </Col>
 
                         <Col md={6} className="p-4 border border-dark text-light">
-
-                            {/* <Form.Select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} className="mb-3" style={{ maxWidth: "200px" }}> */}
-                            {/* <option value="asc">Sort by Due Date: Ascending</option>
-  <option value="desc">Sort by Due Date: Descending</option>
-</Form.Select> */}
 
                             <h3 className="mb-4">Task Filtering <Button variant="outline-light" onClick={() => {
                                 setFilterPriority("");
@@ -301,7 +319,7 @@ const Client = () => {
                             }}>
                                 Clear Filters
                             </Button></h3>
-                            <Form className="mb-3 d-flex gap-3 flex-wrap">
+                            <Form className="mb-3 d-flex gap-3">
 
                                 {/* Priority Filter */}
                                 <Form.Select value={filterPriority} onChange={(e) => setFilterPriority(e.target.value)}>
@@ -331,180 +349,224 @@ const Client = () => {
                             <h3 className="mb-4">Task's <Button onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")} variant="outline-light">
                                 Sorted by Due Date: {sortOrder === "asc" ? "Ascending" : "Descending"}
                             </Button></h3>
+
+
+                            {selectedTasks.length > 0 && (
+                                //     <div className="d-flex justify-content-between align-items-center mt-3">
+                                //     <Button variant="success" onClick={() => markSelected(true)}>
+                                //        Mark as Completed
+                                //     </Button>
+                                //     <Button variant="warning" onClick={() => markSelected(false)}>
+                                //        Mark as Pending
+                                //     </Button>
+                                //     <Button variant="danger" onClick={deleteSelected}>
+                                //        Delete Selected
+                                //     </Button>
+                                //   </div>
+
+                                <Dropdown className="mb-3">
+                                    <Dropdown.Toggle variant="outline-light" id="batch-actions-dropdown">
+                                        Batch Actions
+                                    </Dropdown.Toggle>
+
+                                    <Dropdown.Menu>
+                                        <Dropdown.Item onClick={() => markSelected(true)}>
+                                            ✅ Mark as Completed
+                                        </Dropdown.Item>
+                                        {/* <Dropdown.Item onClick={() => markSelected(false)}>
+                                            ⏳ Mark as Pending
+                                        </Dropdown.Item> */}
+                                        <Dropdown.Item onClick={deleteSelected}>
+                                            🗑️ Delete Selected
+                                        </Dropdown.Item>
+                                    </Dropdown.Menu>
+                                </Dropdown>
+
+                                //   <ButtonGroup>
+                                //   <Button variant="success" onClick={() => markSelected(true)}>✅ Completed</Button>
+                                //   <Button variant="warning" onClick={() => markSelected(false)}>⏳ Pending</Button>
+                                //   <Button variant="danger" onClick={deleteSelected}>🗑️ Delete</Button>
+                                // </ButtonGroup>
+
+                            )}
+
                             <div className="d-flex flex-column justify-content-center">
-                                {viewTasks
-                                    .filter((task) => {
-                                        const matchPriority = filterPriority ? task.priorityLevel === filterPriority : true;
-                                        const matchStatus = filterStatus !== "" ? String(task.completed) === filterStatus : true;
+                                {Array.isArray(viewTasks) && viewTasks.length > 0 ? (
+                                    viewTasks
+                                        .filter((task) => {
+                                            const matchPriority = filterPriority ? task.priorityLevel === filterPriority : true;
+                                            const matchStatus = filterStatus !== "" ? String(task.completed) === filterStatus : true;
 
-                                        // Due Date Filtering Logic
-                                        const taskDate = new Date(task.dueDate);
-                                        const today = new Date();
-                                        const startOfWeek = new Date(today);
-                                        startOfWeek.setDate(today.getDate() - today.getDay()); // Start of the week
-                                        const endOfWeek = new Date(startOfWeek);
-                                        endOfWeek.setDate(startOfWeek.getDate() + 6); // End of the week
-                                        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-                                        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                                            // Due Date Filtering Logic
+                                            const taskDate = new Date(task.dueDate);
+                                            const today = new Date();
+                                            const startOfWeek = new Date(today);
+                                            startOfWeek.setDate(today.getDate() - today.getDay()); // Start of the week
+                                            const endOfWeek = new Date(startOfWeek);
+                                            endOfWeek.setDate(startOfWeek.getDate() + 6); // End of the week
+                                            const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                                            const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
-                                        let matchDueDate = true;
-                                        if (filterDueDate === "today") {
-                                            matchDueDate = taskDate.toDateString() === today.toDateString();
-                                        } else if (filterDueDate === "week") {
-                                            matchDueDate = taskDate >= startOfWeek && taskDate <= endOfWeek;
-                                        } else if (filterDueDate === "month") {
-                                            matchDueDate = taskDate >= startOfMonth && taskDate <= endOfMonth;
-                                        }
+                                            let matchDueDate = true;
+                                            if (filterDueDate === "today") {
+                                                matchDueDate = taskDate.toDateString() === today.toDateString();
+                                            } else if (filterDueDate === "week") {
+                                                matchDueDate = taskDate >= startOfWeek && taskDate <= endOfWeek;
+                                            } else if (filterDueDate === "month") {
+                                                matchDueDate = taskDate >= startOfMonth && taskDate <= endOfMonth;
+                                            }
 
-                                        return matchPriority && matchStatus && matchDueDate;
-                                    })
+                                            return matchPriority && matchStatus && matchDueDate;
+                                        })
 
-                                    .sort((a, b) => {
-                                        const dateA = new Date(a.dueDate);
-                                        const dateB = new Date(b.dueDate);
-                                        return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
-                                    })
+                                        .sort((a, b) => {
+                                            const dateA = new Date(a.dueDate);
+                                            const dateB = new Date(b.dueDate);
+                                            return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+                                        })
 
-                                    .map((task, index) => (
-                                        <div key={index} className="align-items-center mb-3 border p-2">
+                                        .map((task, index) => (
+                                            <div key={index} className="align-items-center mb-3 border p-2">
 
 
 
-                                            <div className="d-flex align-items-center">
-                                                <Form.Check
-                                                    type="checkbox"
-                                                    checked={selectedTasks.includes(task._id)}
-                                                    onChange={() => handleSelect(task._id)}
-                                                    className="me-2"
-                                                />
-                                                <h5 className="m-1">{task.title}</h5>
+                                                <div className="d-flex align-items-center">
+                                                    <Form.Check
+                                                        type="checkbox"
+                                                        checked={selectedTasks.includes(task._id)}
+                                                        onChange={() => handleSelect(task._id)}
+                                                        className="me-2"
+                                                    />
+                                                    <h5 className="m-1">{task.title}</h5>
 
-                                                {selectedTasks.length > 0 && (
-                                                    <div>
-                                                        <Button variant="warning" onClick={() => markSelected(false)} className="me-2">
-                                                            Mark as Pending
+
+                                                </div>
+
+                                                <span className="m-1" style={{
+                                                    maxWidth: "300px",
+                                                    overflowWrap: "break-word",
+                                                    wordBreak: "break-word",
+                                                    whiteSpace: "pre-wrap",
+                                                }}>{task.description}
+                                                </span>
+
+                                                <span>
+                                                    {editDescription !== task._id ? (
+                                                        < BiSolidEditAlt className='m-1 mt-0'
+                                                            style={{ cursor: "pointer", width: '20px', height: '20px' }}
+                                                            onClick={() => handleEdit(task._id, task.description)} />
+
+                                                    ) : (
+                                                        <>
+                                                            <input type="text" value={newText}
+                                                                style={{
+                                                                    width: "100%",
+                                                                    maxWidth: "100%",           // stay within parent
+                                                                    height: "100px",            // adjustable
+                                                                    resize: "none",             // optional
+                                                                    overflowWrap: "break-word", // break long words
+                                                                    wordBreak: "break-word",
+                                                                    whiteSpace: "pre-wrap",     // handle line breaks
+                                                                    padding: "8px",
+                                                                    boxSizing: "border-box",
+                                                                    fontSize: "14px"
+                                                                }}
+                                                                onChange={(e) => setNewText(e.target.value)} placeholder='Edit Text' autoFocus />
+                                                            <Button onClick={() => setEditDescription(null)} variant='secondary'>Cancel</Button>
+                                                            <Button onClick={() => editTaskDes(task._id, newText)} variant='primary'>Save</Button>
+                                                        </>
+                                                    )}
+                                                </span>
+                                                <p className='m-1 text-white'>Priority : {task.priorityLevel}</p>
+                                                <p className={`m-1 ${task.completed ? 'text-primary' : 'text-warning'}`} >
+                                                    {task.completed ? "Completed" : "Pending"}
+                                                    < MdIncompleteCircle className='m-1 mt-0'
+                                                        style={{ cursor: "pointer", width: '20px', height: '20px' }}
+                                                        onClick={() => completed(task.completed, task._id)} />
+                                                </p>
+                                                {<p className="m-1 text-info">DueDate : {task.dueDate.split("T")[0]}</p>}
+
+                                                <MdDelete onClick={() => {
+                                                    setShowDeleteModal(true);
+                                                }}
+                                                    style={{ cursor: "pointer", width: '20px', height: '20px' }} />
+
+                                                <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+                                                    <Modal.Header closeButton>
+                                                        <Modal.Title>Confirm Delete</Modal.Title>
+                                                    </Modal.Header>
+                                                    <Modal.Body>
+                                                        Are you sure you want to delete this task?
+                                                    </Modal.Body>
+                                                    <Modal.Footer>
+                                                        <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                                                            Cancel
                                                         </Button>
-                                                        <Button variant="success" onClick={() => markSelected(true)} className="me-2">
-                                                            Mark as Completed
+                                                        <Button
+                                                            variant="danger"
+                                                            onClick={() => {
+                                                                taskDelete(task._id);
+                                                                setShowDeleteModal(false);
+                                                            }}
+                                                        >
+                                                            Delete
                                                         </Button>
-                                                        <Button variant="danger" onClick={deleteSelected}>
-                                                            Delete Selected
+                                                    </Modal.Footer>
+                                                </Modal>
+
+
+                                                <Modal show={show} onHide={handleClose}>
+                                                    <Modal.Header closeButton>
+                                                        <Modal.Title>Task Status</Modal.Title>
+                                                    </Modal.Header>
+                                                    <Modal.Body>
+                                                        <Form>
+                                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                                                <Form.Select
+                                                                    name="completed"
+                                                                    value={newStatus}
+                                                                    onChange={(e) => setNewStatus(e.target.value)}
+                                                                >
+                                                                    <option value="true">Completed</option>
+                                                                    <option value="false">Pending</option>
+                                                                </Form.Select>
+                                                            </Form.Group>
+                                                        </Form>
+                                                    </Modal.Body>
+                                                    <Modal.Footer>
+                                                        <Button variant="secondary" onClick={handleClose}>
+                                                            Close
                                                         </Button>
-                                                    </div>
-                                                )}
+                                                        <Button variant="primary" onClick={() => taskStatus(task._id)}>
+                                                            Done
+                                                        </Button>
+                                                    </Modal.Footer>
+                                                </Modal>
 
                                             </div>
-
-                                            <span className="m-1" style={{
-                                                maxWidth: "300px",
-                                                overflowWrap: "break-word",
-                                                wordBreak: "break-word",
-                                                whiteSpace: "pre-wrap",
-                                                // padding: "8px",
-                                            }}>{task.description}
-                                            </span>
-
-                                            <span>
-                                                {editDescription !== task._id ? (
-                                                    // <Button onClick={() => handleEdit(task._id, task.description)}></Button>
-                                                    < BiSolidEditAlt className='m-1 mt-0'
-                                                        style={{ cursor: "pointer" }}
-                                                        onClick={() => handleEdit(task._id, task.description)} />
-
-                                                ) : (
-                                                    <>
-                                                        <input type="text" value={newText}
-                                                            style={{
-                                                                width: "100%",
-                                                                maxWidth: "100%",           // stay within parent
-                                                                height: "100px",            // adjustable
-                                                                resize: "none",             // optional
-                                                                overflowWrap: "break-word", // break long words
-                                                                wordBreak: "break-word",
-                                                                whiteSpace: "pre-wrap",     // handle line breaks
-                                                                padding: "8px",
-                                                                boxSizing: "border-box",
-                                                                fontSize: "14px"
-                                                            }}
-                                                            onChange={(e) => setNewText(e.target.value)} placeholder='Edit Text' />
-                                                        <Button onClick={() => setEditDescription(null)} variant='secondary'>Cancel</Button>
-                                                        <Button onClick={() => editTaskDes(task._id, newText)} variant='primary'>Save</Button>
-                                                    </>
-                                                )}
-                                            </span>
-                                            <p className='m-1 text-white'>Priority : {task.priorityLevel}</p>
-                                            <p className={`m-1 ${task.completed ? 'text-success' : 'text-danger'}`} >
-                                                {task.completed ? "Completed" : "Pending"}
-                                                {/* {task.completed === true || task.completed === "true" ? "Completed" : "Pending"} */}
-                                                < MdIncompleteCircle className='m-1 mt-0'
-                                                    style={{ cursor: "pointer" }}
-                                                    onClick={() => completed(task.completed, task._id)} />
-                                            </p>
-                                            {/* <p className="m-1 text-muted small">{task.dueDate}</p> */}
-                                            {<p className="m-1 text-info">DueDate : {task.dueDate.split("T")[0]}</p>}
-
-                                            <MdDelete onClick={() => {
-                                                // taskDelete(task._id);
-                                                setShowDeleteModal(true);
-                                            }}
-                                                style={{ cursor: "pointer", width: '20px', height: '20px' }} />
-
-                                            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-                                                <Modal.Header closeButton>
-                                                    <Modal.Title>Confirm Delete</Modal.Title>
-                                                </Modal.Header>
-                                                <Modal.Body>
-                                                    Are you sure you want to delete this task?
-                                                </Modal.Body>
-                                                <Modal.Footer>
-                                                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-                                                        Cancel
-                                                    </Button>
-                                                    <Button
-                                                        variant="danger"
-                                                        onClick={() => {
-                                                            taskDelete(task._id);
-                                                            // taskDelete(taskToDelete);
-                                                            setShowDeleteModal(false);
-                                                        }}
-                                                    >
-                                                        Delete
-                                                    </Button>
-                                                </Modal.Footer>
-                                            </Modal>
-
-
-                                            <Modal show={show} onHide={handleClose}>
-                                                <Modal.Header closeButton>
-                                                    <Modal.Title>Task Status</Modal.Title>
-                                                </Modal.Header>
-                                                <Modal.Body>
-                                                    <Form>
-                                                        <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                                            {/* <Form.Label>Email address</Form.Label> */}
-                                                            <Form.Select
-                                                                name="completed"
-                                                                value={newStatus}
-                                                                onChange={(e) => setNewStatus(e.target.value)}
-                                                            >
-                                                                <option value="true">Completed</option>
-                                                                <option value="false">Pending</option>
-                                                            </Form.Select>
-                                                        </Form.Group>
-                                                    </Form>
-                                                </Modal.Body>
-                                                <Modal.Footer>
-                                                    <Button variant="secondary" onClick={handleClose}>
-                                                        Close
-                                                    </Button>
-                                                    <Button variant="primary" onClick={() => taskStatus(task._id)}>
-                                                        Done
-                                                    </Button>
-                                                </Modal.Footer>
-                                            </Modal>
-                                        </div>
-                                    ))}
+                                        ))
+                                ) : (
+                                    <p className="text-light text-center">No tasks found.</p>
+                                )}
                             </div>
+
+                            <Modal show={showLogoutConfirm} onHide={() => setShowLogoutConfirm(false)} centered>
+                                <Modal.Header closeButton>
+                                    <Modal.Title className="w-100 text-center">Are you sure you want to log out ?</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Footer className="d-flex flex-column">
+                                    <Button variant="danger" className="mb-2 w-50" onClick={() => {
+                                        setShowLogoutConfirm(false);
+                                        taskLogout();
+                                    }}>
+                                        Log Out
+                                    </Button>
+                                    <Button variant="secondary" className='w-50' onClick={() => setShowLogoutConfirm(false)}>
+                                        Cancel
+                                    </Button>
+                                </Modal.Footer>
+                            </Modal>
+
                         </Col>
 
                     </Row>

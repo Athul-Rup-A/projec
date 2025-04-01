@@ -61,7 +61,6 @@ const Login = () => {
     };
 
     const handleRegister = async () => {
-        // localStorage.removeItem("token")
         navigate('/')
         alert("Redirecting to SIGNUP!")
         return
@@ -85,7 +84,6 @@ const Login = () => {
 
             <Container className="mt-5">
                 <Row className='d-flex flex-column justify-content-center align-items-center'>
-                    {/* <Col md={6} className="p-4 border border-dark"> */}
                     <Col md={5} className="p-4 border border-dark bg-white bg-opacity-75 rounded">
                         <h3 className="mb-4">Welcome Back,</h3>
                         <Form>
@@ -97,7 +95,6 @@ const Login = () => {
                                     placeholder="Enter your User E-mail"
                                     value={data.email}
                                     onChange={loginChange}
-                                    // pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
                                     className='w-75'
                                     autoFocus
                                 />
@@ -114,8 +111,7 @@ const Login = () => {
                                 />
                             </Form.Group>
                             <Button onClick={handleLogin} variant='dark' className='m-1'>User Login</Button>
-                            {/* <Button onClick={handleRegister} variant='dark'className='m-1'>Register</Button> */}
-                            <h6 className='mt-2'>Don't have an account :<Button onClick={handleRegister} variant='transparent' className='mb-1'>Signup</Button></h6>
+                            <h6 className='mt-2'>Don't have an account ?<Button onClick={handleRegister} variant='transparent' className='mb-1'>Sign Up</Button></h6>
                         </Form>
                     </Col>
                 </Row>
