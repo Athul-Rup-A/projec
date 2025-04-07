@@ -142,9 +142,14 @@ const Profile = () => {
             minHeight: '100vh',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            position: 'relative'
         }}
         >
+            <Link to="/client" style={{ position: 'absolute', top: '7px', left: '45px', zIndex: 1000 }}>
+                <Button variant="outline-light">back</Button>
+            </Link>
+
             <Container className="mt-5 text-light">
 
                 <Row>
@@ -184,9 +189,9 @@ const Profile = () => {
 
 
                             {isEditing ? (
-                                <Button variant="outline-light" onClick={handleUpdate}>Save</Button>
+                                <Button variant="success" onClick={handleUpdate}>Save</Button>
                             ) : (
-                                <Button variant="outline-light" onClick={() => setIsEditing(true)}>Edit</Button>
+                                <Button variant="secondary" onClick={() => setIsEditing(true)}>Edit</Button>
                             )}
                         </Form>
                     </Col>
@@ -230,7 +235,7 @@ const Profile = () => {
                                     />
                                 </Form.Group>
 
-                                <Button variant="outline-light" onClick={handlePasswordChange}>Change Password</Button>
+                                <Button variant="info" onClick={handlePasswordChange}>Change Password</Button>
                             </Form>
                         </div>
                     </Col>
@@ -240,10 +245,6 @@ const Profile = () => {
                         <p><strong>Total Tasks:</strong> {stats.total}</p>
                         <p><strong>Completed Tasks:</strong> {stats.completed}</p>
                         <p><strong>Overdue Tasks:</strong> {stats.overdue}</p>
-
-                        <Link to="/client">
-                            <Button variant="outline-light">back</Button>
-                        </Link>
 
                     </Col>
                 </Row>

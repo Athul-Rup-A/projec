@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { ButtonGroup } from 'react-bootstrap';
 import { Dropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import NavBar from '../components/NavBar';
 
 const Client = () => {
 
@@ -222,6 +223,11 @@ const Client = () => {
 
     return (
         <>
+
+            <Container className='p-0'>
+                <NavBar onLogout={() => setShowLogoutConfirm(true)} />
+            </Container>
+
             <div className="d-flex justify-content-center align-items-center h-100vh" style={{
                 backgroundImage: `url('/purple-abstract.jpg')`,
                 backgroundSize: 'cover',
@@ -237,11 +243,11 @@ const Client = () => {
                     <Row>
 
                         <Col md={6} className='p-4 border border-dark text-light'>
-                            <h3 className='mb-4 d-flex justify-content-between'>Task Management
-                                <Link to="/profile">
+                            {/* <h3 className='mb-4 d-flex justify-content-between'>Task Management */}
+                            {/* <Link to="/profile">
                                     <Button variant="outline-light">Profile</Button>
-                                </Link>
-                            </h3>
+                                </Link> */}
+                            {/* </h3> */}
                             <Form>
                                 <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
                                     <Form.Label>Title</Form.Label>
@@ -304,8 +310,8 @@ const Client = () => {
                                     </Form.Select>
                                 </Form.Group>
 
-                                <Button onClick={taskAdd} variant='outline-light' className='m-1'>Add TASK</Button>
-                                <Button onClick={() => setShowLogoutConfirm(true)} variant='outline-light' className='m-1'>Logout</Button>
+                                <Button onClick={taskAdd} variant='success' className='m-1'>Add TASK</Button>
+                                {/* <Button onClick={() => setShowLogoutConfirm(true)} variant='outline-light' className='m-1'>Logout</Button> */}
 
                             </Form>
                         </Col>
@@ -477,14 +483,18 @@ const Client = () => {
                                                         </>
                                                     )}
                                                 </span>
-                                                <p className='m-1 text-white'>Priority : {task.priorityLevel}</p>
-                                                <p className={`m-1 ${task.completed ? 'text-primary' : 'text-warning'}`} >
-                                                    {task.completed ? "Completed" : "Pending"}
-                                                    < MdIncompleteCircle className='m-1 mt-0'
-                                                        style={{ cursor: "pointer", width: '20px', height: '20px' }}
-                                                        onClick={() => completed(task.completed, task._id)} />
-                                                </p>
-                                                {<p className="m-1 text-info">DueDate : {task.dueDate.split("T")[0]}</p>}
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <p className='m-1 text-white'>Priority : {task.priorityLevel}</p>
+                                                    <div className="d-flex align-items-center">
+                                                        <p className={`m-1 mb-0 ${task.completed ? 'text-light' : 'text-warning'}`} >
+                                                            {task.completed ? "Completed" : "Pending"}
+                                                        </p>
+                                                        < MdIncompleteCircle className='ms-1 mt-1'
+                                                            style={{ cursor: "pointer", width: '20px', height: '20px' }}
+                                                            onClick={() => completed(task.completed, task._id)} />
+                                                    </div>
+                                                </div>
+                                                {<p className="ms-1 mb-0 text-info">DueDate : {task.dueDate.split("T")[0]}</p>}
 
                                                 <MdDelete onClick={() => {
                                                     setShowDeleteModal(true);

@@ -63,7 +63,6 @@ const Signup = () => {
 
     const signnUpToLogin = async () => {
         navigate('/login')
-        alert("Redirecting to LOGIN!")
         return
     }
 

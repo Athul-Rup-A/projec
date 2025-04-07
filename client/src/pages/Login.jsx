@@ -62,7 +62,6 @@ const Login = () => {
 
     const handleRegister = async () => {
         navigate('/')
-        alert("Redirecting to SIGNUP!")
         return
     };
 

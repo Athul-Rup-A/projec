@@ -1,0 +1,47 @@
+.custom-navbar {
+  height: 50px;
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.custom-button {
+  width: 100px;
+}
+
+.navbar-toggler {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+}
+
+/* Background box only in collapsed mode */
+.navbar-collapse.collapse.show {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  left: auto;
+  background-color: white;
+  padding: 1rem;
+  border-radius: 10px;
+  z-index: 999;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  transition: none !important;
+  min-width: 220px;
+}
+
+.navbar-collapse.collapse.show .custom-button {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.navbar-collapse.collapse.show .custom-button:last-child {
+  margin-bottom: 0;
+}
+
+.collapsing {
+  transition: none !important;
+  display: none !important;
+}
