@@ -1,4 +1,4 @@
-# projec
+
 # Task Manager App
 
 A full-stack task management web application built using the **MERN stack** (MongoDB, Express.js, React, Node.js). This app enables users to sign up, log in, manage tasks with priority and due dates, and track task completion via a simple dashboard.
