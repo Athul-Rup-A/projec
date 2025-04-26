@@ -38,31 +38,31 @@ A full-stack task management web application built using the **MERN stack** (Mon
 Follow these steps to set up and run the project on your local machine:
 
 ```bash
-# 1. Clone the repository and move into the project directory
+# 1. Clone the Repository and Move into the Project Directory
 git clone https://github.com/Athul-Rup-A/projec.git
 cd projec
 
-# 2. Install frontend dependencies
+# 2. Install Frontend Dependencies
 cd client
 npm install
 
-# 3. Install backend dependencies
+# 3. Install Backend Dependencies
 cd ../server
 npm install
 
-# 4. Configure environment variables
-Create a .env file in the server/ folder with the following:
+# 4. Configure Environment Variables
+Create a .env file inside the server/ folder with the following content:
+URL=your_mongodb_connection_string
+JWT=your_jwt_secret_key
 PORT=3700
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret_key
 
-# 5. Start the backend server
+# 5. Start the Backend Server
 npm start
 
-# 6. Start the frontend development server
+# 6. Start the Frontend Development Server
 cd ../client
 npm run dev
 
-# 7. Open your browser and go to:
+# 7. Open Your Browser and Go to:
 http://localhost:5173
 
